@@ -68,6 +68,18 @@ public final class SinglePeriodTimeline extends Timeline {
         tag);
   }
 
+  public SinglePeriodTimeline(
+      long durationUs, long windowDefaultStartPositionUs, boolean isSeekable, boolean isDynamic, @Nullable Object tag) {
+    this(
+        durationUs,
+        durationUs,
+        /* windowPositionInPeriodUs= */0,
+        /* windowDefaultStartPositionUs= */ windowDefaultStartPositionUs,
+        isSeekable,
+        isDynamic,
+        tag);
+  }
+
   /**
    * Creates a timeline with one period, and a window of known duration starting at a specified
    * position in the period.

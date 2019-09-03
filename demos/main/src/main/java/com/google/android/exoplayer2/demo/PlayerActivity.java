@@ -462,6 +462,12 @@ public class PlayerActivity extends AppCompatActivity
     if (downloadRequest != null) {
       return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
     }
+    long defaultStartPositionUs = C.TIME_UNSET;
+    if (uri.getEncodedPath().contains("dizzy")) {
+      defaultStartPositionUs = C.msToUs(20000);
+    } else if (uri.getEncodedPath().contains("android-screens")) {
+      defaultStartPositionUs = C.msToUs(16000);
+    }
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
     switch (type) {
       case C.TYPE_DASH:
@@ -471,7 +477,9 @@ public class PlayerActivity extends AppCompatActivity
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_OTHER:
-        return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+        return new ProgressiveMediaSource
+            .Factory(dataSourceFactory)
+            .createMediaSource(uri, defaultStartPositionUs);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }

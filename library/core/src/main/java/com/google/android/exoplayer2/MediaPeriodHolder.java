@@ -419,6 +419,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       mediaPeriod =
           new ClippingMediaPeriod(
               mediaPeriod, /* enableInitialDiscontinuity= */ true, /* startUs= */ 0, endPositionUs);
+    } else if (startPositionUs != C.TIME_UNSET) {
+      mediaPeriod =
+          new ClippingMediaPeriod(
+              mediaPeriod, /* enableInitialDiscontinuity= */ true, /* startUs= */ startPositionUs, C.TIME_END_OF_SOURCE);
     }
     return mediaPeriod;
   }

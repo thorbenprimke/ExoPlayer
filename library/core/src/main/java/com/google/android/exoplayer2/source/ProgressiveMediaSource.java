@@ -179,6 +179,19 @@ public final class ProgressiveMediaSource extends BaseMediaSource
           tag);
     }
 
+    public ProgressiveMediaSource createMediaSource(Uri uri, long defaultStartPositionUs) {
+      isCreateCalled = true;
+      return new ProgressiveMediaSource(
+          uri,
+          dataSourceFactory,
+          extractorsFactory,
+          loadErrorHandlingPolicy,
+          customCacheKey,
+          continueLoadingCheckIntervalBytes,
+          defaultStartPositionUs,
+          tag);
+    }
+
     @Override
     public int[] getSupportedTypes() {
       return new int[] {C.TYPE_OTHER};
@@ -201,9 +214,30 @@ public final class ProgressiveMediaSource extends BaseMediaSource
 
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
+  private long defaultStartPositionUs;
   @Nullable private TransferListener transferListener;
 
   // TODO: Make private when ExtractorMediaSource is deleted.
+  /* package */ ProgressiveMediaSource(
+      Uri uri,
+      DataSource.Factory dataSourceFactory,
+      ExtractorsFactory extractorsFactory,
+      LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy,
+      @Nullable String customCacheKey,
+      int continueLoadingCheckIntervalBytes,
+      long defaultStartPositionUs,
+      @Nullable Object tag) {
+    this.uri = uri;
+    this.dataSourceFactory = dataSourceFactory;
+    this.extractorsFactory = extractorsFactory;
+    this.loadableLoadErrorHandlingPolicy = loadableLoadErrorHandlingPolicy;
+    this.customCacheKey = customCacheKey;
+    this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
+    this.timelineDurationUs = C.TIME_UNSET;
+    this.defaultStartPositionUs = defaultStartPositionUs;
+    this.tag = tag;
+  }
+
   /* package */ ProgressiveMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -219,6 +253,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     this.timelineDurationUs = C.TIME_UNSET;
+    this.defaultStartPositionUs = C.TIME_UNSET;
     this.tag = tag;
   }
 
@@ -288,7 +323,11 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
     refreshSourceInfo(
         new SinglePeriodTimeline(
-            timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false, tag),
+            timelineDurationUs,
+            defaultStartPositionUs == C.TIME_UNSET ? 0 : defaultStartPositionUs,
+            timelineIsSeekable,
+            /* isDynamic= */ false,
+            tag),
         /* manifest= */ null);
   }
 }
